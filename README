@@ -1,0 +1,38 @@
+NAME
+
+Scope::Escape::Sugar - whizzy syntax for non-local control transfer
+
+DESCRIPTION
+
+This module provides specialised syntax for non-local control transfer
+(jumping between stack frames), mainly based on the operators in
+Common Lisp.  The non-local control transfers behave exactly like those
+of Scope::Escape, which should be consulted for the semantic details.
+This module provides more structured facilities, which take a variety
+of approaches to referencing the stack frame to be transferred to.
+
+All the keywords and functions exported by this module are lexically
+scoped in the importing code.  That is, they are available from the
+point of importation up to the end of the enclosing block.  This is
+in contrast to the more common arrangement where exports are tied to a
+package without regard for lexical boundaries.
+
+INSTALLATION
+
+	perl Build.PL
+	./Build
+	./Build test
+	./Build install
+
+AUTHOR
+
+Andrew Main (Zefram) <zefram@fysh.org>
+
+COPYRIGHT
+
+Copyright (C) 2010 Andrew Main (Zefram) <zefram@fysh.org>
+
+LICENSE
+
+This module is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
