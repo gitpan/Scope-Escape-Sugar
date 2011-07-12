@@ -1,7 +1,7 @@
 use warnings;
 use strict;
 
-use Test::More tests => 52;
+use Test::More tests => 53;
 
 use Scope::Escape::Sugar qw(block return_from);
 
@@ -196,12 +196,23 @@ foreach(
 	q{ block(foo {}, 1); },
 	q{ block foo my $y = 1; },
 	q{ block(foo {}) my $y = 1; },
+	q{ no warnings "syntax"; block foo; return_from foo, 1; },
+) {
+	eval $decl.$_;
+	like $@, qr/\Asyntax error/;
+}
+
+foreach(
 	q{ block foo; 1 + return_from foo 2; },
 	q{ block foo; 1 + (return_from foo 2); },
 	q{ block foo; 1 + (return_from foo 2) + 3; },
 ) {
 	eval $decl.$_;
-	like $@, qr/\Asyntax error/;
+	if("$]" >= 5.013008) {
+		is $@, "";
+	} else {
+		like $@, qr/\Asyntax error/;
+	}
 }
 
 1;

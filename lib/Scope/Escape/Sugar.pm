@@ -37,12 +37,6 @@ L<Scope::Escape>, which should be consulted for the semantic details.
 This module provides more structured facilities, which take a variety
 of approaches to referencing the stack frame to be transferred to.
 
-All the keywords and functions exported by this module are lexically
-scoped in the importing code.  That is, they are available from the
-point of importation up to the end of the enclosing block.  This is
-in contrast to the more common arrangement where exports are tied to a
-package without regard for lexical boundaries.
-
 =cut
 
 package Scope::Escape::Sugar;
@@ -52,47 +46,29 @@ use warnings;
 use strict;
 
 use B::Hooks::EndOfScope 0.05 ();
-use Lexical::Sub 0.003 ();
-use Scope::Escape 0.001 ();
+use Devel::CallChecker 0.003 ();
+use Devel::CallParser 0.000 ();
+use Scope::Escape 0.004 ();
 
-our $VERSION = "0.000";
+our $VERSION = "0.001";
+
+use parent "Exporter";
+our @EXPORT_OK = qw(
+	with_escape_function with_escape_continuation
+	block return_from
+	catch throw
+);
 
 require XSLoader;
 XSLoader::load(__PACKAGE__, $VERSION);
 
-my %exportable = (
-	with_escape_function => "keyword",
-	with_escape_continuation => "keyword",
-	block => "keyword",
-	return_from => "keyword",
-	catch => "keyword",
-	throw => \&_throw,
-);
+=head1 OPERATORS AND FUNCTIONS
 
-sub import {
-	my $package = shift;
-	foreach(@_) {
-		my $exp = $exportable{$_};
-		if(!defined($exp)) {
-			die "\"$_\" is not exported by the $package module\n"
-				unless defined $exp;
-		} elsif(ref($exp) eq "CODE") {
-			Lexical::Sub->import($_ => $exp);
-		} else {
-			$^H{"Scope::Escape::Sugar/$_"} = 1;
-		}
-	}
-}
-
-=head1 KEYWORDS AND FUNCTIONS
-
-The items shown here are mostly not ordinary functions.  Most are keywords
+The items shown here are mostly not ordinary functions.  Most are operators
 that introduce a form that has some special syntax, not conforming
 to the ordinary Perl syntax.  The documentation shows the complete
-syntax of the forms headed by the keyword.  The complete form may be
+syntax of forms that use the operator.  The complete form may be
 either a statement or an expression, as indicated in the documentation.
-The keyword is only recognised if it appears as a bareword at the start
-of a statement/expression.
 
 =head2 Direct escape continuation access
 
@@ -171,7 +147,7 @@ names in the ordinary scalar variable namespace.)
 In each version, there is a code block which is labelled with a static
 bareword identifier I<TAG>.  The tag is lexically scoped, being visible
 in the code textually contained within the block.  The C<return_from>
-keyword can then be used to return from the textually enclosing block
+operator can then be used to return from the textually enclosing block
 with a specified tag.
 
 In Common Lisp (the model for these special forms), there are many
@@ -208,12 +184,20 @@ I<BLOCK> is returnable, tagged with I<TAG>.
 This form is an expression.  It transfers control to exit from the
 lexically enclosing returnable block tagged with I<TAG>.  If there is
 no matching block, it is a compile-time error.  Zero or more I<VALUE>s
-may be supplied, which will be returned from the block.  (Each I<VALUE>
-is stated as an expression, which is evaluated normally.)
+may be supplied, which determine what will be returned from the block.
+(Each I<VALUE> is stated as an expression, which is evaluated normally.)
 
-Due to limitations of the API available to add-on parsing code, the
-form without parentheses is only available when it is the first thing
-in a statement.
+The I<VALUE>s are interpreted according to the syntactic context in
+which the target block was invoked.  In void context, all the I<VALUE>s
+are ignored.  In scalar context, only the last I<VALUE> is returned,
+or C<undef> if no I<VALUE>s were supplied.  In list context, the full
+list of I<VALUE>s is used unmodified.  Note that this non-local context
+information does not directly influence the evaluation of the I<VALUE>
+expresssions.
+
+On Perls prior to 5.13.8, due to limitations of the API available to
+add-on parsing code, the form without parentheses is only available when
+it is the first thing in a statement.
 
 =back
 
@@ -257,11 +241,21 @@ This form is a complete statement, ending with the closing brace of
 I<BLOCK>.  I<BLOCK> is executed normally.
 I<BLOCK> is a catch block, tagged with I<TAG>.
 
+It is unspecified whether I<TAG> is evaluated inside or outside
+the block context.  Do not rely on this aspect of its behaviour.
+(Historically it was inside, but outside makes more sense, so this may
+change in the future.)
+
 =item catch(TAG BLOCK)
 
 This form is an expression.  I<BLOCK> is executed normally, and its
 return value will become the value of this expression.
 I<BLOCK> is a catch block, tagged with I<TAG>.
+
+It is unspecified whether I<TAG> is evaluated inside or outside
+the block context.  Do not rely on this aspect of its behaviour.
+(Historically it was inside, but outside makes more sense, so this may
+change in the future.)
 
 =item throw(TAG, VALUE ...)
 
@@ -269,8 +263,16 @@ This is a function; all arguments are evaluated normally.  It transfers
 control to exit from the dynamically enclosing catch block tagged
 with I<TAG>.  If there is no matching block, it is a runtime error.
 (Currently signalled by C<die>, but this may change in the future.)
-Zero or more I<VALUE>s may be supplied, which will be returned from the
-catch block.
+Zero or more I<VALUE>s may be supplied, which determine what will be
+returned from the catch block.
+
+The I<VALUE>s are interpreted according to the syntactic context in
+which the target block was invoked.  In void context, all the I<VALUE>s
+are ignored.  In scalar context, only the last I<VALUE> is returned,
+or C<undef> if no I<VALUE>s were supplied.  In list context, the full
+list of I<VALUE>s is used unmodified.  Note that this non-local context
+information does not directly influence the evaluation of the I<VALUE>
+expresssions.
 
 =back
 
@@ -279,20 +281,27 @@ catch block.
 The constructs that declare lexically-scoped variables do not generate
 the "masks earlier declaration" warnings that they should.
 
-Due to limitations of the API available to add-on parsing code, some
-of the keywords are implemented by rewriting the source for the normal
-Perl parser to parse.  This process risks unwanted interaction with
-other syntax-mutating modules.  The resulting failures are likely to be
-rather mystifying.
-
 The lexical variable defined by C<with_escape_function> and
 C<with_escape_continuation> is writable.  It really ought to be read-only.
 
-Due to the aforementioned limitations of the API available to add-on
-parsing code, the version of C<return_from> without parentheses is
-only available when it is the first thing in a statement.  Since a
-C<return_from> expression never returns locally, there is little reason
-for it to be a subexpression anyway.
+The custom parsing code required for most of the operators is only invoked
+if the operator is invoked using an unqualified name.  For example,
+referring to C<catch> as C<Scope::Escape::Sugar::catch> won't work.
+This limitation should be resolved if L<Devel::CallParser> or something
+similar migrates into the core in a future version of Perl.
+
+On Perls prior to 5.13.8, due to limitations of the API available to
+add-on parsing code, some of the operators are implemented by rewriting
+the source for the normal Perl parser to parse.  This process risks
+unwanted interaction with other syntax-mutating modules, and is likely
+to break if the operators are imported under a non-standard name.
+The resulting failures are likely to be rather mystifying.
+
+On Perls prior to 5.13.8, due to the aforementioned limitations of the
+API available to add-on parsing code, the version of C<return_from>
+without parentheses is only available when it is the first thing in
+a statement.  Since a C<return_from> expression never returns locally,
+there is little reason for it to be a subexpression anyway.
 
 =head1 SEE ALSO
 
@@ -304,7 +313,7 @@ Andrew Main (Zefram) <zefram@fysh.org>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2010 Andrew Main (Zefram) <zefram@fysh.org>
+Copyright (C) 2010, 2011 Andrew Main (Zefram) <zefram@fysh.org>
 
 =head1 LICENSE
 

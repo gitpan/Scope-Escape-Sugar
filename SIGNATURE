@@ -1,5 +1,5 @@
 This file contains message digests of all files listed in MANIFEST,
-signed via the Module::Signature module, version 0.63.
+signed via the Module::Signature module, version 0.68.
 
 To verify the content in this distribution, first make sure you have
 Module::Signature installed, then type:
@@ -14,25 +14,27 @@ not run its Makefile.PL or Build.PL.
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-SHA1 2a7ab7ec3fc889d55d54095ae3bdb4a23a2174be .cvsignore
-SHA1 52305736dcbeee49819b1ef85242f5f9c366e987 Build.PL
-SHA1 10d0e4153b1b1baca8f3d002aab42be809aeb834 Changes
-SHA1 4609cc4a64da8e3f85d62dc4be98323a9fd98d56 MANIFEST
-SHA1 1c8055b9ae4d92001d929de9ae1ecdccff9f4676 META.yml
-SHA1 977e35650babe2c95adaefddaf1fd10a02f293eb Makefile.PL
-SHA1 7e3e6665e8b4e4d79216439553109b2e189edb6a README
+SHA1 c594897ba2ffd85ac467457ee60cbceff7de6b5e .cvsignore
+SHA1 b3010ad05bb1a73384fb42f3c259ea3f51c9d82d Build.PL
+SHA1 9c039454e2b90c49d29834153956c88b11adca56 Changes
+SHA1 dfb471a2cd8b1b666bc3d13e76861f0250d096e3 MANIFEST
+SHA1 b6c442a34cdd4e2f04909d3cbe5d1d0465272b76 META.json
+SHA1 370f944e263a9b09ec974ea61820426c52906925 META.yml
+SHA1 062456d27f39590acabc272ee7856689ceb3fb49 Makefile.PL
+SHA1 d73d74bc2605d588ee6d9d856d6e897a8d2fdb82 README
 SHA1 c75177774b675fc4f90be19fa08d830c7feba263 lib/Scope/Escape/.cvsignore
-SHA1 c24a289b0caa79c2cbfea0760fa7dad57a449790 lib/Scope/Escape/Sugar.pm
-SHA1 38063c6173209cadd18733a941ba7ca64092e1f5 lib/Scope/Escape/Sugar.xs
-SHA1 e86711e4e3c9cc0112ac95afbc2350b542c53430 t/block.t
+SHA1 0854046b9f91fd229c14466bec2d709805757077 lib/Scope/Escape/Sugar.pm
+SHA1 7b48b5bd719497e927fb10a757e50b4108a05ddc lib/Scope/Escape/Sugar.xs
+SHA1 21acf401499b5906eaf3c700b1028cb7e1d275a5 t/block.t
 SHA1 09f0b1b1493989fa6d637ca3137280df22e6b1a8 t/catch.t
-SHA1 0e141eecf3ca4903ef38d9413b5403a9ddb0392f t/pod_cvg.t
-SHA1 74a957cd8b93f25672ecc6aa578a671d084dd343 t/pod_syn.t
+SHA1 5f2ed6da6378b37c38d3857e9a96dfde32782d09 t/leximport.t
+SHA1 904d9a4f76525e2303e4b0c168c68230f223c8de t/pod_cvg.t
+SHA1 65c75abdef6f01a5d1588a307f2ddfe2333dc961 t/pod_syn.t
 SHA1 3cd35d0484be05965951f51c63c3eb54b4a92d40 t/with_escape.t
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
+Version: GnuPG v1.4.10 (GNU/Linux)
 
-iEYEARECAAYFAku50+4ACgkQOV9mt2VyAVE1OACcCQOKWoT375tlsGSyvp4QnFLR
-+NsAn3KY8EhtMke1irMPaXohbSFQ5yls
-=0iUH
+iEYEARECAAYFAk4ct7sACgkQOV9mt2VyAVGfTACfbCjJ3rmB9qxeTcehrkWMG7Uq
+clIAnjdLkpa3PFFcbVYS4Vr7rTZtHWEg
+=nZvM
 -----END PGP SIGNATURE-----
