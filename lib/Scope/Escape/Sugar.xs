@@ -40,6 +40,10 @@
 # define PERL_PADSEQ_INTRO I32_MAX
 #endif /* !PERL_PADSEQ_INTRO */
 
+#ifndef pad_findmy_sv
+# define pad_findmy_sv(sv, flags) pad_findmy(SvPVX(sv), SvCUR(sv), flags)
+#endif /* !pad_findmy_sv */
+
 #define sv_is_string(sv) \
 	(SvTYPE(sv) != SVt_PVGV && SvTYPE(sv) != SVt_REGEXP && \
 	 (SvFLAGS(sv) & (SVf_IOK|SVf_NOK|SVf_POK|SVp_IOK|SVp_NOK|SVp_POK)))
@@ -614,7 +618,7 @@ static OP *THX_gen_block_returner_op(pTHX_ SV *namesv)
 {
 	PADOFFSET offset;
 	OP *op;
-	offset = pad_findmy(SvPVX(namesv), SvCUR(namesv), 0);
+	offset = pad_findmy_sv(namesv, 0);
 	if(offset == NOT_IN_PAD)
 		croak("no block named \"%s\" is visible",
 			SvPVX(namesv)+BLOCK_NAME_PREFIX_LEN);

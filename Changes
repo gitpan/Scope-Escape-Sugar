@@ -1,3 +1,8 @@
+version 0.002; 2011-09-05
+
+  * port to Perl 5.15.1: pad_findmy_sv() is in the API, replacing the
+    provisional API pad_findmy()
+
 version 0.001; 2011-07-12
 
   * incompatible change: tie parser magic to subroutine objects, exported

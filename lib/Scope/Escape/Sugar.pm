@@ -50,7 +50,7 @@ use Devel::CallChecker 0.003 ();
 use Devel::CallParser 0.000 ();
 use Scope::Escape 0.004 ();
 
-our $VERSION = "0.001";
+our $VERSION = "0.002";
 
 use parent "Exporter";
 our @EXPORT_OK = qw(
